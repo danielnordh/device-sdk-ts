@@ -12,6 +12,8 @@ import { type GetAddressDAReturnType } from "@api/app-binder/GetAddressDeviceAct
 import { type GetAppConfigDAReturnType } from "@api/app-binder/GetAppConfigDeviceActionTypes";
 import { type SignMessageDAReturnType } from "@api/app-binder/SignMessageDeviceActionTypes";
 import { type SignTransactionDAReturnType } from "@api/app-binder/SignTransactionDeviceActionTypes";
+import { GetTrustedInputDAReturnType } from "@api/app-binder/GetTrustedInputActionTypes";
+
 import { APP_NAME } from "@internal/app-binder/constants";
 import { externalTypes } from "@internal/externalTypes";
 
@@ -19,6 +21,7 @@ import { GetAddressCommand } from "./command/GetAddressCommand";
 import { GetAppConfigCommand } from "./command/GetAppConfigCommand";
 import { SignMessageCommand } from "./command/SignMessageCommand";
 import { SignTransactionTask } from "./task/SignTransactionTask";
+import { GetTrustedInputCommand } from "./command/GetTrustedInputCommand";
 
 @injectable()
 export class ZcashAppBinder {
@@ -93,6 +96,22 @@ export class ZcashAppBinder {
           appName: APP_NAME,
           requiredUserInteraction: UserInteractionRequired.SignPersonalMessage,
           skipOpenApp: args.skipOpenApp,
+        },
+      }),
+    });
+  }
+
+  getTrustedInput(args: {
+    transaction: Uint8Array;
+    indexLookup?: number;
+  }): GetTrustedInputDAReturnType {
+    return this.dmk.executeDeviceAction({
+      sessionId: this.sessionId,
+      deviceAction: new SendCommandInAppDeviceAction({
+        input: {
+          command: new GetTrustedInputCommand(args),
+          appName: APP_NAME,
+          requiredUserInteraction: UserInteractionRequired.GetTrustedInput,
         },
       }),
     });

@@ -23,8 +23,7 @@ import { type FlowOrchestrator } from "@root/src/domain/services/FlowOrchestrato
 import { type RetryService } from "@root/src/domain/services/RetryService";
 import { type ScreenAnalyzerService } from "@root/src/domain/services/ScreenAnalyzer";
 import { type ServiceController } from "@root/src/domain/services/ServiceController";
-import { type TransactionSigningService } from "@root/src/domain/services/TransactionSigningService";
-import { type TypedDataSigningService } from "@root/src/domain/services/TypedDataSigningService";
+import { type SigningService } from "@root/src/domain/services/SigningService";
 import { SpeculosNanoController } from "@root/src/infrastructure/adapters/device-controllers/SpeculosNanoController";
 import { SpeculosTouchscreenController } from "@root/src/infrastructure/adapters/device-controllers/SpeculosTouchscreenController";
 import { EthersTransactionCrafter } from "@root/src/infrastructure/adapters/evm/EthersTransactionCrafter";
@@ -78,15 +77,10 @@ export const infrastructureModuleFactory = (config: ClearSigningTesterConfig) =>
       .to(DefaultScreenAnalyzer)
       .inSingletonScope();
 
-    // Ethereum signing: DefaultSigningService implements both interfaces.
-    // Bound to itself as a singleton, then aliased so both DI tokens resolve
-    // to the same instance. DMKServiceController injects the concrete class
-    // directly to call setSigner().
+    // Ethereum signing service. DMKServiceController also injects the concrete
+    // class directly (via class token) to call setSigner().
     bind(DefaultSigningService).toSelf().inSingletonScope();
-    bind<TransactionSigningService>(TYPES.TransactionSigningService)
-      .toDynamicValue((ctx) => ctx.get(DefaultSigningService))
-      .inSingletonScope();
-    bind<TypedDataSigningService>(TYPES.TypedDataSigningService)
+    bind<SigningService>(TYPES.SigningService)
       .toDynamicValue((ctx) => ctx.get(DefaultSigningService))
       .inSingletonScope();
 
